@@ -4,28 +4,9 @@
 <svg version="1.0" xmlns="http://www.w3.org/2000/svg"
  width="60" height="60" viewBox="0 0 1042 958"
  preserveAspectRatio="xMidYMid meet">
+<g transform="translate(0,958) scale(0.1,-0.1)"
+ fill="none" stroke="#DC143C" stroke-width="12">
   
-  <defs>
-    <filter id="glowPulse" x="-50%" y="-50%" width="200%" height="200%">
-      <feGaussianBlur in="SourceGraphic" stdDeviation="8" result="blur1" />
-      <feGaussianBlur in="SourceGraphic" stdDeviation="16" result="blur2" />
-      <feMerge>
-        <feMergeNode in="blur2" />
-        <feMergeNode in="blur1" />
-        <feMergeNode in="SourceGraphic" />
-      </feMerge>
-    </filter>
-  </defs>
-  
-  <!-- Glow layer - Torch pulse -->
-  <g transform="translate(0,958) scale(0.1,-0.1)" fill="none" stroke="#4A0000" stroke-width="30" opacity="0" filter="url(#glowPulse)">
-    <animate attributeName="opacity" values="0;1;0" dur="1.4s" repeatCount="indefinite" />
-    <!-- TERA PATH CODE YAHAN -->
-    <path d="..."/>
-  </g>
-  
-  <!-- Solid layer - Very thick, dark red -->
-  <g transform="translate(0,958) scale(0.1,-0.1)" fill="none" stroke="#4A0000" stroke-width="14">
     
 <path d="M6395 8227 c-22 -5 -53 -15 -70 -22 -16 -7 -46 -18 -65 -25 -52 -20
 -251 -125 -363 -191 -170 -101 -222 -122 -312 -127 -80 -4 -125 5 -330 65
