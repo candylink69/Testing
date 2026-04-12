@@ -4,13 +4,27 @@
 <svg version="1.0" xmlns="http://www.w3.org/2000/svg"
  width="90" height="90" viewBox="0 0 500 500"
  preserveAspectRatio="xMidYMid meet">
-<!-- Glow layer -->
-<g transform="translate(0,479) scale(0.1,-0.1)" fill="none" stroke="#D2B48C" stroke-width="12" opacity="0" filter="url(#glowPulse)">
-  <animate attributeName="opacity" values="0;0.8;0" dur="1.8s" repeatCount="indefinite" />
-  <path d="..."/>
-</g>
-<!-- Solid layer -->
-<g transform="translate(0,479) scale(0.1,-0.1)" fill="none" stroke="#D2B48C" stroke-width="6">
+  
+  <defs>
+    <filter id="glowPulse" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="8" result="blur" />
+      <feMerge>
+        <feMergeNode in="blur" />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+  </defs>
+  
+  <!-- Glow layer - ye blink karega torch jaisa -->
+  <g transform="translate(0,479) scale(0.1,-0.1)" fill="none" stroke="#8B4513" stroke-width="14" opacity="0" filter="url(#glowPulse)">
+    <animate attributeName="opacity" values="0;1;0" dur="1.8s" repeatCount="indefinite" />
+    <!-- TERA PURA PATH CODE YAHAN DAAL -->
+    <path d="M750 3818..."/>
+  </g>
+  
+  <!-- Solid layer - ye hamesha dikhega -->
+  <g transform="translate(0,479) scale(0.1,-0.1)" fill="none" stroke="#8B4513" stroke-width="6">
+    
 <path d="M750 3818 c0 -39 -4 -99 -9 -132 -5 -34 -15 -99 -21 -146 -11 -79
 -38 -193 -75 -317 -8 -29 -21 -74 -29 -100 -8 -27 -30 -100 -50 -163 -71 -227
 -88 -319 -89 -490 -1 -219 28 -378 97 -533 17 -37 30 -55 38 -51 7 4 8 3 4 -4
