@@ -19,17 +19,18 @@
     link4: 'https://encyclopediainsoluble.com/fhgez7an?key=391cec1be41d65de0c6c381b80925b02'
   };
 
-  // Bubble Configuration
-  const BUBBLE_CONFIG = [
-    { shape: 'shape-1.svg', link: SMART_LINKS.link1, toast: 'Horny 😈', toastClass: 'horny' },
-    { shape: 'shape-2.svg', link: SMART_LINKS.link2, toast: 'Lucky 🍀', toastClass: 'lucky' },
-    { shape: 'shape-3.svg', link: SMART_LINKS.link3, toast: 'Naughty 🔥', toastClass: 'naughty' },
-    { shape: 'shape-4.svg', link: SMART_LINKS.link4, toast: 'Bad Luck 💔', toastClass: 'badluck' },
-    { shape: 'shape-1.svg', link: null, toast: 'Horny 😈', toastClass: 'horny' },
-    { shape: 'shape-2.svg', link: null, toast: 'Lucky 🍀', toastClass: 'lucky' },
-    { shape: 'shape-3.svg', link: null, toast: 'Naughty 🔥', toastClass: 'naughty' },
-    { shape: 'shape-4.svg', link: null, toast: 'Bad Luck 💔', toastClass: 'badluck' }
-  ];
+  // Bubble Configuration with sound mapping
+const BUBBLE_CONFIG = [
+  { shape: 'shape-1.svg', link: SMART_LINKS.link1, toast: 'Horny 😈', toastClass: 'horny', sound: 's1' },
+  { shape: 'shape-2.svg', link: SMART_LINKS.link2, toast: 'Lucky 🍀', toastClass: 'lucky', sound: 's2' },
+  { shape: 'shape-3.svg', link: SMART_LINKS.link3, toast: 'Naughty 🔥', toastClass: 'naughty', sound: 's3' },
+  { shape: 'shape-4.svg', link: SMART_LINKS.link4, toast: 'Bad Luck 💔', toastClass: 'badluck', sound: 's4' },
+  { shape: 'shape-1.svg', link: null, toast: 'Horny 😈', toastClass: 'horny', sound: 's1' },
+  { shape: 'shape-2.svg', link: null, toast: 'Lucky 🍀', toastClass: 'lucky', sound: 's2' },
+  { shape: 'shape-3.svg', link: null, toast: 'Naughty 🔥', toastClass: 'naughty', sound: 's3' },
+  { shape: 'shape-4.svg', link: null, toast: 'Bad Luck 💔', toastClass: 'badluck', sound: 's4' }
+];
+
 
   // Heart Progress Messages
   const HEART_MESSAGES = [
@@ -309,11 +310,12 @@
       e.stopPropagation();
       
       if (bubble.dataset.popped === 'true') return;
-      bubble.dataset.popped = 'true';
-      
-      if (typeof playRandomPopSound === 'function') {
-        playRandomPopSound();
-      }
+      bubble.dataset.popped = 'true'
+
+// ISE CHANGE KARO:
+if (typeof playSound === 'function' && config.sound) {
+  playSound(config.sound);
+}
       
       showToast(config.toast, config.toastClass, bubble);
       
@@ -364,13 +366,22 @@
     bubble.style.top = heartY + 'px';
     
     // Create liquid bubble container
-    const container = document.createElement('div');
-    container.className = 'bubble-container';
-    
-    const img = document.createElement('img');
-    img.src = `bubble-system/assets/shapes/${config.shape}`;
-    img.alt = 'Bubble';
-    img.draggable = false;
+const container = document.createElement('div');
+container.className = 'bubble-container';
+
+const img = document.createElement('img');
+img.src = `bubble-system/assets/shapes/${config.shape}`;
+img.alt = 'Bubble';
+img.draggable = false;
+
+// Set glow color based on shape
+if (config.shape === 'shape-1.svg') img.style.color = '#000000'; // Black glow
+else if (config.shape === 'shape-2.svg') img.style.color = '#D2B48C'; // Light brown glow
+else if (config.shape === 'shape-3.svg') img.style.color = '#FF69B4'; // Pink glow
+else if (config.shape === 'shape-4.svg') img.style.color = '#8B0000'; // Dark red glow
+
+container.appendChild(img);
+bubble.appendChild(container);
     
     container.appendChild(img);
     bubble.appendChild(container);
