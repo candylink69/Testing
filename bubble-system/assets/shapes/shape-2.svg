@@ -1,13 +1,10 @@
-<?xml version="1.0" standalone="no"?>
-<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 20010904//EN"
- "http://www.w3.org/TR/2001/REC-SVG-20010904/DTD/svg10.dtd">
 <svg version="1.0" xmlns="http://www.w3.org/2000/svg"
  width="90" height="90" viewBox="0 0 500 500"
  preserveAspectRatio="xMidYMid meet">
   
   <defs>
     <filter id="glowPulse" x="-50%" y="-50%" width="200%" height="200%">
-      <feGaussianBlur in="SourceGraphic" stdDeviation="8" result="blur" />
+      <feGaussianBlur in="SourceGraphic" stdDeviation="12" result="blur" />
       <feMerge>
         <feMergeNode in="blur" />
         <feMergeNode in="SourceGraphic" />
@@ -15,15 +12,36 @@
     </filter>
   </defs>
   
-  <!-- Glow layer - ye blink karega torch jaisa -->
-  <g transform="translate(0,479) scale(0.1,-0.1)" fill="none" stroke="#8B4513" stroke-width="14" opacity="0" filter="url(#glowPulse)">
-    <animate attributeName="opacity" values="0;1;0" dur="1.8s" repeatCount="indefinite" />
-    <!-- TERA PURA PATH CODE YAHAN DAAL -->
+  <!-- 🔥 GLOW LAYER (pulse karega but kabhi 0 nahi hoga) -->
+  <g transform="translate(0,479) scale(0.1,-0.1)"
+     fill="none"
+     stroke="#8B4513"
+     stroke-width="14"
+     opacity="0.4"
+     filter="url(#glowPulse)">
+     
+    <!-- ⚡ opacity pulse (0 nahi jaayega) -->
+    <animate attributeName="opacity"
+             values="0.4;1;0.4"
+             dur="1.8s"
+             repeatCount="indefinite" />
+             
+    <!-- optional glow intensity -->
+    <animate attributeName="stroke-width"
+             values="10;18;10"
+             dur="1.8s"
+             repeatCount="indefinite" />
+             
     <path d="M750 3818..."/>
   </g>
   
-  <!-- Solid layer - ye hamesha dikhega -->
-  <g transform="translate(0,479) scale(0.1,-0.1)" fill="none" stroke="#8B4513" stroke-width="6">
+  <!-- ✅ BASE LAYER (always visible) -->
+  <g transform="translate(0,479) scale(0.1,-0.1)"
+     fill="none"
+     stroke="#8B4513"
+     stroke-width="6"
+     opacity="0.8">
+
     
 <path d="M750 3818 c0 -39 -4 -99 -9 -132 -5 -34 -15 -99 -21 -146 -11 -79
 -38 -193 -75 -317 -8 -29 -21 -74 -29 -100 -8 -27 -30 -100 -50 -163 -71 -227
