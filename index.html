@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>🧪 Bubble System Test</title>
+    
+    <!-- Bubble System CSS -->
+    <link rel="stylesheet" href="bubble-system/bubble-styles.css">
+    
+    <style>
+        /* Simple test page styling */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            font-family: 'Segoe UI', Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .test-container {
+            max-width: 600px;
+            padding: 40px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, #ff6b9d, #ff3366);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        p {
+            font-size: 1.2rem;
+            margin-bottom: 30px;
+            opacity: 0.9;
+            color: #ddd;
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            padding: 12px 24px;
+            font-size: 1rem;
+            font-weight: bold;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #ff6b9d, #ff3366);
+            color: white;
+        }
+        
+        .btn-secondary {
+            background: linear-gradient(135deg, #485563, #29323c);
+            color: white;
+        }
+        
+        .btn-warning {
+            background: linear-gradient(135deg, #f39c12, #e67e22);
+            color: white;
+        }
+        
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+        }
+        
+        .btn:active {
+            transform: translateY(0);
+        }
+        
+        .status {
+            margin-top: 30px;
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 15px;
+            font-size: 0.9rem;
+            color: #aaa;
+            border-left: 4px solid #ff6b9d;
+        }
+        
+        .note {
+            margin-top: 20px;
+            font-size: 0.85rem;
+            color: #888;
+        }
+        
+        code {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 2px 8px;
+            border-radius: 5px;
+            font-family: monospace;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="test-container">
+        <h1>🧪 Bubble System</h1>
+        <p>Testing Environment</p>
+        
+        <div class="button-group">
+            <button class="btn btn-primary" onclick="alert('✅ Button works! Bubbles should be visible.')">
+                🔘 Test Click
+            </button>
+            <button class="btn btn-secondary" onclick="window.location.reload()">
+                🔄 Refresh Page
+            </button>
+            <button class="btn btn-warning" onclick="if(window.bubbleSystemReset) { bubbleSystemReset(); alert('🔄 Bubble System Reset!'); } else { alert('❌ bubbleSystemReset not available'); }">
+                🔁 Reset Bubbles
+            </button>
+        </div>
+        
+        <div class="status">
+            <strong>📊 Status:</strong><br>
+            • 8 bubbles should be floating (4 unique shapes, 4 copies)<br>
+            • Heart progress should be bottom-right<br>
+            • Pop bubbles → See toast messages + Heart fills<br>
+            • After 8 pops → 💋 Kiss appears + UI glow<br>
+            • 12-hour cooldown starts after completion
+        </div>
+        
+        <div class="note">
+            <strong>🎵 Sound:</strong> Enabled<br>
+            <strong>💾 Cache:</strong> Active (12h cooldown)<br>
+            <strong>📁 Files:</strong> bubble-core.js, bubble-sounds.js, bubble-styles.css<br>
+            <code>Open Console (F12) for logs</code>
+        </div>
+    </div>
+
+    <!-- Bubble System Scripts -->
+    <script src="bubble-system/bubble-sounds.js"></script>
+    <script src="bubble-system/bubble-core.js"></script>
+    
+    <script>
+        // Simple test log
+        console.log('🧪 Bubble Test Page Loaded');
+        console.log('💡 Tip: Use bubbleSystemReset() in console to reset');
+        
+        // Check if bubble system loaded
+        setTimeout(() => {
+            const bubbles = document.querySelectorAll('.bubble-system-bubble');
+            const heart = document.querySelector('.bubble-heart-wrapper');
+            
+            console.log(`📊 Bubbles found: ${bubbles.length}/8`);
+            console.log(`❤️ Heart found: ${heart ? 'YES' : 'NO'}`);
+            
+            if (bubbles.length === 0) {
+                console.warn('⚠️ No bubbles - Check if cooldown active or files missing');
+            }
+        }, 500);
+    </script>
+
+</body>
+</html>
