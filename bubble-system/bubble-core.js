@@ -1,5 +1,5 @@
 // ============================================
-// BUBBLE SYSTEM CORE - v1.0
+// BUBBLE SYSTEM CORE - v2.0 (Fixed)
 // ============================================
 
 (function() {
@@ -9,6 +9,7 @@
   const STORAGE_KEY = 'bubble_system_state';
   const COOLDOWN_HOURS = 12;
   const TOTAL_BUBBLES = 8;
+  const BUBBLE_SIZES = { 'shape-1.svg': 60, 'shape-2.svg': 90, 'shape-3.svg': 60, 'shape-4.svg': 60 };
   
   // Smart Links (EXACT - No changes)
   const SMART_LINKS = {
@@ -32,15 +33,15 @@
 
   // Heart Progress Messages
   const HEART_MESSAGES = [
-    'Pop the bubbles and get horny',  // 0%
-    'Good start 😏',                   // 12.5%
-    'Nice 😉',                         // 25%
-    'Naughty 🔥',                      // 37.5%
-    'Hot 🥵',                          // 50%
-    'Steamy 💦',                       // 62.5%
-    'Ready to get horny 😈',           // 75%
-    'Almost there... 💋',              // 87.5%
-    'HORNY! 💕'                        // 100%
+    'Pop to get horny',
+    'Good start 😏',
+    'Nice 😉',
+    'Naughty 🔥',
+    'Hot 🥵',
+    'Steamy 💦',
+    'Ready? 😈',
+    'Almost 💋',
+    'HORNY! 💕'
   ];
 
   // ---------- STATE ----------
@@ -49,6 +50,8 @@
   let heartFill, heartText;
   let uiGlowActive = false;
   let isInitialized = false;
+  let animationFrame = null;
+  let movementInterval = null;
 
   // ---------- STORAGE (CACHE) FUNCTIONS ----------
   function checkCooldown() {
@@ -61,12 +64,10 @@
       const cooldownMs = COOLDOWN_HOURS * 60 * 60 * 1000;
       
       if (state.completed && (now - state.completedAt) < cooldownMs) {
-        // Still in cooldown - apply UI glow
         applyUIGlow();
         return true;
       }
       
-      // Cooldown expired or not completed
       if (state.completed && (now - state.completedAt) >= cooldownMs) {
         localStorage.removeItem(STORAGE_KEY);
       }
@@ -86,9 +87,7 @@
         completedAt: completed ? Date.now() : null
       };
       localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-    } catch (e) {
-      console.warn('Bubble: Storage save failed', e);
-    }
+    } catch (e) {}
   }
 
   function loadProgress() {
@@ -100,9 +99,7 @@
           poppedCount = state.poppedCount || 0;
         }
       }
-    } catch (e) {
-      console.warn('Bubble: Storage load failed', e);
-    }
+    } catch (e) {}
   }
 
   // ---------- UI GLOW ----------
@@ -113,9 +110,122 @@
     }
   }
 
-  function removeUIGlow() {
-    document.body.classList.remove('bubble-ui-glow');
-    uiGlowActive = false;
+  // ---------- COLLISION DETECTION ----------
+  function checkCollision(b1, b2, minDistance) {
+    const x1 = parseFloat(b1.style.left) || 0;
+    const y1 = parseFloat(b1.style.top) || 0;
+    const x2 = parseFloat(b2.style.left) || 0;
+    const y2 = parseFloat(b2.style.top) || 0;
+    
+    const dx = x1 - x2;
+    const dy = y1 - y2;
+    const distance = Math.sqrt(dx * dx + dy * dy);
+    
+    return distance < minDistance;
+  }
+
+  function resolveCollisions() {
+    const activeBubbles = bubbles.filter(b => b.parentNode && b.dataset.popped !== 'true');
+    
+    for (let i = 0; i < activeBubbles.length; i++) {
+      for (let j = i + 1; j < activeBubbles.length; j++) {
+        const b1 = activeBubbles[i];
+        const b2 = activeBubbles[j];
+        
+        const size1 = BUBBLE_SIZES[b1.dataset.shape] || 60;
+        const size2 = BUBBLE_SIZES[b2.dataset.shape] || 60;
+        const minDist = (size1 + size2) / 2 + 10;
+        
+        if (checkCollision(b1, b2, minDist)) {
+          // Push bubbles apart
+          const x1 = parseFloat(b1.style.left) || 0;
+          const y1 = parseFloat(b1.style.top) || 0;
+          const x2 = parseFloat(b2.style.left) || 0;
+          const y2 = parseFloat(b2.style.top) || 0;
+          
+          const dx = x2 - x1;
+          const dy = y2 - y1;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          
+          if (dist > 0) {
+            const angle = Math.atan2(dy, dx);
+            const pushX = Math.cos(angle) * (minDist - dist) * 0.6;
+            const pushY = Math.sin(angle) * (minDist - dist) * 0.6;
+            
+            let newX1 = x1 - pushX;
+            let newY1 = y1 - pushY;
+            let newX2 = x2 + pushX;
+            let newY2 = y2 + pushY;
+            
+            // Keep in bounds
+            const padding = 20;
+            newX1 = Math.max(padding, Math.min(window.innerWidth - size1 - padding, newX1));
+            newY1 = Math.max(padding, Math.min(window.innerHeight - size1 - padding, newY1));
+            newX2 = Math.max(padding, Math.min(window.innerWidth - size2 - padding, newX2));
+            newY2 = Math.max(padding, Math.min(window.innerHeight - size2 - padding, newY2));
+            
+            b1.style.left = newX1 + 'px';
+            b1.style.top = newY1 + 'px';
+            b2.style.left = newX2 + 'px';
+            b2.style.top = newY2 + 'px';
+          }
+        }
+      }
+    }
+  }
+
+  // ---------- SMOOTH MOVEMENT ----------
+  function smoothMovement() {
+    const activeBubbles = bubbles.filter(b => b.parentNode && b.dataset.popped !== 'true');
+    
+    activeBubbles.forEach(bubble => {
+      if (!bubble.dataset.vx) {
+        bubble.dataset.vx = (Math.random() - 0.5) * 1.5;
+        bubble.dataset.vy = (Math.random() - 0.5) * 1.5;
+      }
+      
+      let vx = parseFloat(bubble.dataset.vx) || 0;
+      let vy = parseFloat(bubble.dataset.vy) || 0;
+      
+      // Random direction changes
+      if (Math.random() < 0.02) {
+        vx += (Math.random() - 0.5) * 0.8;
+        vy += (Math.random() - 0.5) * 0.8;
+      }
+      
+      // Limit velocity
+      const maxSpeed = 2.5;
+      const speed = Math.sqrt(vx * vx + vy * vy);
+      if (speed > maxSpeed) {
+        vx = (vx / speed) * maxSpeed;
+        vy = (vy / speed) * maxSpeed;
+      }
+      
+      let newX = (parseFloat(bubble.style.left) || 0) + vx;
+      let newY = (parseFloat(bubble.style.top) || 0) + vy;
+      
+      // Bounce off walls
+      const size = BUBBLE_SIZES[bubble.dataset.shape] || 60;
+      const padding = 10;
+      
+      if (newX < padding || newX > window.innerWidth - size - padding) {
+        vx = -vx * 0.9;
+        newX = Math.max(padding, Math.min(window.innerWidth - size - padding, newX));
+      }
+      
+      if (newY < padding || newY > window.innerHeight - size - padding) {
+        vy = -vy * 0.9;
+        newY = Math.max(padding, Math.min(window.innerHeight - size - padding, newY));
+      }
+      
+      bubble.dataset.vx = vx;
+      bubble.dataset.vy = vy;
+      bubble.style.left = newX + 'px';
+      bubble.style.top = newY + 'px';
+    });
+    
+    resolveCollisions();
+    animationFrame = requestAnimationFrame(smoothMovement);
   }
 
   // ---------- HEART PROGRESS ----------
@@ -128,8 +238,8 @@
       <div class="bubble-heart-container">
         <div class="bubble-heart-fill" id="bubbleHeartFill" style="height: 0%;"></div>
         <div class="bubble-heart-outline">❤️</div>
+        <div class="bubble-heart-text" id="bubbleHeartText">${HEART_MESSAGES[0]}</div>
       </div>
-      <div class="bubble-heart-text" id="bubbleHeartText">${HEART_MESSAGES[0]}</div>
     `;
     
     document.body.appendChild(wrapper);
@@ -144,53 +254,52 @@
     const percentage = (poppedCount / TOTAL_BUBBLES) * 100;
     heartFill.style.height = percentage + '%';
     
-    // Update message based on count
     const messageIndex = Math.min(poppedCount, HEART_MESSAGES.length - 1);
     heartText.textContent = HEART_MESSAGES[messageIndex];
     
-    // Save progress to cache
     if (poppedCount < TOTAL_BUBBLES) {
       saveProgress(false);
     }
   }
 
-  // ---------- TOAST MESSAGES ----------
-  function showToast(message, className) {
+  // ---------- TOAST MESSAGES (BUBBLE KE PAAS) ----------
+  function showToast(message, className, bubble) {
     const toast = document.createElement('div');
     toast.className = `bubble-toast ${className}`;
     toast.textContent = message;
+    
+    // Position near bubble
+    const bubbleX = parseFloat(bubble.style.left) || 0;
+    const bubbleY = parseFloat(bubble.style.top) || 0;
+    const size = BUBBLE_SIZES[bubble.dataset.shape] || 60;
+    
+    toast.style.left = (bubbleX + size / 2) + 'px';
+    toast.style.top = (bubbleY - 10) + 'px';
+    toast.style.transform = 'translateX(-50%)';
+    
     document.body.appendChild(toast);
     
     setTimeout(() => {
-      if (toast.parentNode) {
-        toast.remove();
-      }
-    }, 1500);
+      if (toast.parentNode) toast.remove();
+    }, 1200);
   }
 
   // ---------- KISS REWARD ----------
   function showKissReward() {
-    // Play kiss sound
     if (typeof playKissSound === 'function') {
       playKissSound();
     }
     
-    // Show kiss overlay
     const kiss = document.createElement('div');
     kiss.className = 'bubble-kiss-overlay';
     kiss.textContent = '💋';
     document.body.appendChild(kiss);
     
     setTimeout(() => {
-      if (kiss.parentNode) {
-        kiss.remove();
-      }
+      if (kiss.parentNode) kiss.remove();
     }, 2000);
     
-    // Apply UI glow
     applyUIGlow();
-    
-    // Save completed state
     saveProgress(true);
   }
 
@@ -199,123 +308,107 @@
     return function(e) {
       e.stopPropagation();
       
-      // Prevent double pop
       if (bubble.dataset.popped === 'true') return;
       bubble.dataset.popped = 'true';
       
-      // Play random pop sound
       if (typeof playRandomPopSound === 'function') {
         playRandomPopSound();
       }
       
-      // Show toast message
-      showToast(config.toast, config.toastClass);
+      showToast(config.toast, config.toastClass, bubble);
       
-      // Open link if exists
       if (config.link) {
         window.open(config.link, '_blank');
       }
       
-      // Pop animation
       bubble.classList.add('bubble-system-pop');
       
-      // Remove bubble after animation
       setTimeout(() => {
-        if (bubble.parentNode) {
-          bubble.remove();
-        }
-      }, 300);
+        if (bubble.parentNode) bubble.remove();
+      }, 400);
       
-      // Update progress
       poppedCount++;
       updateHeartProgress();
       
-      // Check if all bubbles popped
       if (poppedCount >= TOTAL_BUBBLES) {
-        // Remove all remaining bubbles
-        document.querySelectorAll('.bubble-system-bubble').forEach(b => {
-          if (b.parentNode && b.dataset.popped !== 'true') {
-            b.remove();
-          }
+        if (animationFrame) {
+          cancelAnimationFrame(animationFrame);
+          animationFrame = null;
+        }
+        
+        bubbles.forEach(b => {
+          if (b.parentNode && b.dataset.popped !== 'true') b.remove();
         });
         
-        // Show kiss reward
         showKissReward();
       }
     };
   }
 
-  // ---------- CREATE BUBBLES ----------
+  // ---------- CREATE BUBBLES WITH ENTRANCE ----------
   function createBubble(config, index) {
     const bubble = document.createElement('div');
     bubble.className = 'bubble-system-bubble';
     bubble.dataset.index = index;
     bubble.dataset.popped = 'false';
+    bubble.dataset.shape = config.shape;
     
-    // Random starting position (avoid edges)
-    const padding = 80;
-    const x = padding + Math.random() * (window.innerWidth - 2 * padding);
-    const y = padding + Math.random() * (window.innerHeight - 2 * padding);
+    const size = BUBBLE_SIZES[config.shape] || 60;
+    bubble.style.width = size + 'px';
+    bubble.style.height = size + 'px';
     
-    bubble.style.left = x + 'px';
-    bubble.style.top = y + 'px';
+    // Start from heart position (bottom-right)
+    const heartX = window.innerWidth - 80;
+    const heartY = window.innerHeight - 80;
+    bubble.style.left = heartX + 'px';
+    bubble.style.top = heartY + 'px';
     
-    // Random animation delay
-    bubble.style.animationDelay = (Math.random() * 2) + 's';
+    // Create liquid bubble container
+    const container = document.createElement('div');
+    container.className = 'bubble-container';
     
-    // Add SVG image
     const img = document.createElement('img');
     img.src = `bubble-system/assets/shapes/${config.shape}`;
     img.alt = 'Bubble';
-    img.style.width = '100%';
-    img.style.height = '100%';
     img.draggable = false;
-    bubble.appendChild(img);
     
-    // Add click handler
+    container.appendChild(img);
+    bubble.appendChild(container);
+    
     bubble.addEventListener('click', handleBubblePop(bubble, config, index));
     
     document.body.appendChild(bubble);
+    
+    // Entrance animation - fly from heart to random position
+    setTimeout(() => {
+      const padding = 50;
+      const targetX = padding + Math.random() * (window.innerWidth - size - 2 * padding);
+      const targetY = padding + Math.random() * (window.innerHeight - size - 2 * padding);
+      
+      bubble.style.setProperty('--target-x', targetX + 'px');
+      bubble.style.setProperty('--target-y', targetY + 'px');
+      bubble.classList.add('bubble-entrance');
+      
+      setTimeout(() => {
+        bubble.classList.remove('bubble-entrance');
+        bubble.style.left = targetX + 'px';
+        bubble.style.top = targetY + 'px';
+      }, 1000);
+    }, index * 150); // Staggered entrance
+    
     return bubble;
-  }
-
-  // ---------- RANDOM MOVEMENT ----------
-  function startBubbleMovement() {
-    setInterval(() => {
-      document.querySelectorAll('.bubble-system-bubble').forEach(bubble => {
-        if (bubble.dataset.popped === 'true') return;
-        
-        const currentLeft = parseFloat(bubble.style.left) || 0;
-        const currentTop = parseFloat(bubble.style.top) || 0;
-        
-        // Random small movement
-        const newLeft = currentLeft + (Math.random() - 0.5) * 30;
-        const newTop = currentTop + (Math.random() - 0.5) * 30;
-        
-        // Keep within bounds
-        const boundedLeft = Math.max(20, Math.min(window.innerWidth - 80, newLeft));
-        const boundedTop = Math.max(20, Math.min(window.innerHeight - 80, newTop));
-        
-        bubble.style.left = boundedLeft + 'px';
-        bubble.style.top = boundedTop + 'px';
-      });
-    }, 2000);
   }
 
   // ---------- INITIALIZE ----------
   function initialize() {
     if (isInitialized) return;
     
-    // Check if in cooldown
     if (checkCooldown()) {
-      console.log('Bubble: In cooldown period, bubbles hidden');
+      console.log('Bubble: Cooldown active');
       return;
     }
     
-    // Load saved progress
     loadProgress();
-    
-    // Create heart progress
     createHeartProgress();
     
     // Create bubbles
@@ -324,37 +417,42 @@
       bubbles.push(bubble);
     });
     
-    // Update heart with loaded progress
     updateHeartProgress();
     
-    // If already completed before, show reward
     if (poppedCount >= TOTAL_BUBBLES) {
       showKissReward();
-      // Remove all bubbles
-      bubbles.forEach(b => {
-        if (b.parentNode) b.remove();
-      });
+      bubbles.forEach(b => { if (b.parentNode) b.remove(); });
     } else {
-      // Start random movement
-      startBubbleMovement();
+      // Start smooth movement after entrance
+      setTimeout(() => {
+        animationFrame = requestAnimationFrame(smoothMovement);
+      }, 1500);
     }
     
     isInitialized = true;
     console.log('Bubble: System initialized');
   }
 
-  // ---------- CLEANUP (Optional - for debugging) ----------
+  // ---------- RESET ----------
   window.bubbleSystemReset = function() {
     localStorage.removeItem(STORAGE_KEY);
-    removeUIGlow();
+    document.body.classList.remove('bubble-ui-glow');
+    uiGlowActive = false;
+    
+    if (animationFrame) {
+      cancelAnimationFrame(animationFrame);
+      animationFrame = null;
+    }
+    
     document.querySelectorAll('.bubble-system-bubble, .bubble-heart-wrapper, .bubble-toast, .bubble-kiss-overlay').forEach(el => el.remove());
+    
     poppedCount = 0;
     isInitialized = false;
     initialize();
-    console.log('Bubble: System reset');
+    console.log('Bubble: Reset');
   };
 
-  // ---------- START WHEN DOM READY ----------
+  // ---------- START ----------
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', initialize);
   } else {
