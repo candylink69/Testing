@@ -7,7 +7,7 @@
 
   // ---------- CONFIGURATION ----------
   const STORAGE_KEY = 'bubble_system_state';
-  const COOLDOWN_HOURS = 12;
+  const COOLDOWN_HOURS = 3;
   const TOTAL_BUBBLES = 8;
   const BUBBLE_SIZES = { 'shape-1.svg': 60, 'shape-2.svg': 90, 'shape-3.svg': 60, 'shape-4.svg': 60 };
   
