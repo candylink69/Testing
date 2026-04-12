@@ -12,24 +12,24 @@
   transition: none; /* JS handles smooth movement */
 }
 
-/* 3D Liquid Glass Bubble Container */
+/* 3D Liquid Glass Bubble Container - MORE TRANSPARENT */
 .bubble-container {
   width: 100%;
   height: 100%;
   position: relative;
   border-radius: 50%;
   background: radial-gradient(circle at 30% 30%, 
-    rgba(255, 255, 255, 0.9) 0%,
-    rgba(173, 216, 230, 0.4) 40%,
-    rgba(100, 200, 255, 0.2) 70%,
-    rgba(255, 255, 255, 0.1) 100%);
+    rgba(255, 255, 255, 0.5) 0%,
+    rgba(200, 230, 255, 0.2) 40%,
+    rgba(150, 200, 255, 0.1) 70%,
+    rgba(255, 255, 255, 0.05) 100%);
   box-shadow: 
-    0 15px 25px rgba(0, 0, 0, 0.2),
-    inset -10px -10px 20px rgba(0, 0, 0, 0.1),
-    inset 10px 10px 20px rgba(255, 255, 255, 0.8),
-    inset 0 0 30px rgba(255, 255, 255, 0.5);
-  backdrop-filter: blur(4px);
-  border: 1px solid rgba(255, 255, 255, 0.6);
+    0 15px 25px rgba(0, 0, 0, 0.15),
+    inset -8px -8px 15px rgba(0, 0, 0, 0.08),
+    inset 8px 8px 15px rgba(255, 255, 255, 0.4),
+    inset 0 0 25px rgba(255, 255, 255, 0.3);
+  backdrop-filter: blur(3px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
   animation: bubbleRotate 8s linear infinite;
   display: flex;
   align-items: center;
@@ -37,12 +37,12 @@
   transform-style: preserve-3d;
 }
 
-/* Shape inside bubble */
+/* Shape inside bubble - WITH GLOW */
 .bubble-container img {
   width: 70%;
   height: 70%;
   object-fit: contain;
-  filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.2));
+  filter: drop-shadow(0 0 8px currentColor) brightness(1.2);
   z-index: 2;
   animation: shapeFloat 3s ease-in-out infinite;
 }
