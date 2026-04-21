@@ -1,5 +1,5 @@
 // ============================================
-// BUBBLE SYSTEM CORE - v2.0 (Fixed)
+// BUBBLE SYSTEM CORE - v2.1 (90% Transparent)
 // ============================================
 
 (function() {
@@ -9,9 +9,16 @@
   const STORAGE_KEY = 'bubble_system_state';
   const COOLDOWN_HOURS = 3;
   const TOTAL_BUBBLES = 8;
-  const BUBBLE_SIZES = { 'shape-1.svg': 60, 'shape-2.svg': 90, 'shape-3.svg': 60, 'shape-4.svg': 60 };
   
-  // Smart Links (EXACT - No changes)
+  // Updated to 45px for all bubbles
+  const BUBBLE_SIZES = { 
+    'shape-1.svg': 45, 
+    'shape-2.svg': 45, 
+    'shape-3.svg': 45, 
+    'shape-4.svg': 45 
+  };
+  
+  // Smart Links
   const SMART_LINKS = {
     link1: 'https://encyclopediainsoluble.com/b4m2cdnq?key=f7aec115e88a384bd7f491fad307520f',
     link2: 'https://encyclopediainsoluble.com/ic3viem3?key=d8a39cb15c37e9d1cc63d60698447f0c',
@@ -19,18 +26,17 @@
     link4: 'https://encyclopediainsoluble.com/fhgez7an?key=391cec1be41d65de0c6c381b80925b02'
   };
 
-  // Bubble Configuration with sound mapping
-const BUBBLE_CONFIG = [
-  { shape: 'shape-1.svg', link: SMART_LINKS.link1, toast: 'Horny 😈', toastClass: 'horny', sound: 's1' },
-  { shape: 'shape-2.svg', link: SMART_LINKS.link2, toast: 'Lucky 🍀', toastClass: 'lucky', sound: 's2' },
-  { shape: 'shape-3.svg', link: SMART_LINKS.link3, toast: 'Naughty 🔥', toastClass: 'naughty', sound: 's3' },
-  { shape: 'shape-4.svg', link: SMART_LINKS.link4, toast: 'Bad Luck 💔', toastClass: 'badluck', sound: 's4' },
-  { shape: 'shape-1.svg', link: null, toast: 'Horny 😈', toastClass: 'horny', sound: 's1' },
-  { shape: 'shape-2.svg', link: null, toast: 'Lucky 🍀', toastClass: 'lucky', sound: 's2' },
-  { shape: 'shape-3.svg', link: null, toast: 'Naughty 🔥', toastClass: 'naughty', sound: 's3' },
-  { shape: 'shape-4.svg', link: null, toast: 'Bad Luck 💔', toastClass: 'badluck', sound: 's4' }
-];
-
+  // Bubble Configuration
+  const BUBBLE_CONFIG = [
+    { shape: 'shape-1.svg', link: SMART_LINKS.link1, toast: 'Horny 😈', toastClass: 'horny', sound: 's1' },
+    { shape: 'shape-2.svg', link: SMART_LINKS.link2, toast: 'Lucky 🍀', toastClass: 'lucky', sound: 's2' },
+    { shape: 'shape-3.svg', link: SMART_LINKS.link3, toast: 'Naughty 🔥', toastClass: 'naughty', sound: 's3' },
+    { shape: 'shape-4.svg', link: SMART_LINKS.link4, toast: 'Bad Luck 💔', toastClass: 'badluck', sound: 's4' },
+    { shape: 'shape-1.svg', link: null, toast: 'Horny 😈', toastClass: 'horny', sound: 's1' },
+    { shape: 'shape-2.svg', link: null, toast: 'Lucky 🍀', toastClass: 'lucky', sound: 's2' },
+    { shape: 'shape-3.svg', link: null, toast: 'Naughty 🔥', toastClass: 'naughty', sound: 's3' },
+    { shape: 'shape-4.svg', link: null, toast: 'Bad Luck 💔', toastClass: 'badluck', sound: 's4' }
+  ];
 
   // Heart Progress Messages
   const HEART_MESSAGES = [
@@ -52,9 +58,8 @@ const BUBBLE_CONFIG = [
   let uiGlowActive = false;
   let isInitialized = false;
   let animationFrame = null;
-  let movementInterval = null;
 
-  // ---------- STORAGE (CACHE) FUNCTIONS ----------
+  // ---------- STORAGE FUNCTIONS ----------
   function checkCooldown() {
     try {
       const data = localStorage.getItem(STORAGE_KEY);
@@ -133,12 +138,11 @@ const BUBBLE_CONFIG = [
         const b1 = activeBubbles[i];
         const b2 = activeBubbles[j];
         
-        const size1 = BUBBLE_SIZES[b1.dataset.shape] || 60;
-        const size2 = BUBBLE_SIZES[b2.dataset.shape] || 60;
+        const size1 = BUBBLE_SIZES[b1.dataset.shape] || 45;
+        const size2 = BUBBLE_SIZES[b2.dataset.shape] || 45;
         const minDist = (size1 + size2) / 2 + 10;
         
         if (checkCollision(b1, b2, minDist)) {
-          // Push bubbles apart
           const x1 = parseFloat(b1.style.left) || 0;
           const y1 = parseFloat(b1.style.top) || 0;
           const x2 = parseFloat(b2.style.left) || 0;
@@ -158,7 +162,6 @@ const BUBBLE_CONFIG = [
             let newX2 = x2 + pushX;
             let newY2 = y2 + pushY;
             
-            // Keep in bounds
             const padding = 20;
             newX1 = Math.max(padding, Math.min(window.innerWidth - size1 - padding, newX1));
             newY1 = Math.max(padding, Math.min(window.innerHeight - size1 - padding, newY1));
@@ -188,13 +191,11 @@ const BUBBLE_CONFIG = [
       let vx = parseFloat(bubble.dataset.vx) || 0;
       let vy = parseFloat(bubble.dataset.vy) || 0;
       
-      // Random direction changes
       if (Math.random() < 0.02) {
         vx += (Math.random() - 0.5) * 0.8;
         vy += (Math.random() - 0.5) * 0.8;
       }
       
-      // Limit velocity
       const maxSpeed = 2.5;
       const speed = Math.sqrt(vx * vx + vy * vy);
       if (speed > maxSpeed) {
@@ -205,8 +206,7 @@ const BUBBLE_CONFIG = [
       let newX = (parseFloat(bubble.style.left) || 0) + vx;
       let newY = (parseFloat(bubble.style.top) || 0) + vy;
       
-      // Bounce off walls
-      const size = BUBBLE_SIZES[bubble.dataset.shape] || 60;
+      const size = BUBBLE_SIZES[bubble.dataset.shape] || 45;
       const padding = 10;
       
       if (newX < padding || newX > window.innerWidth - size - padding) {
@@ -263,16 +263,15 @@ const BUBBLE_CONFIG = [
     }
   }
 
-  // ---------- TOAST MESSAGES (BUBBLE KE PAAS) ----------
+  // ---------- TOAST MESSAGES ----------
   function showToast(message, className, bubble) {
     const toast = document.createElement('div');
     toast.className = `bubble-toast ${className}`;
     toast.textContent = message;
     
-    // Position near bubble
     const bubbleX = parseFloat(bubble.style.left) || 0;
     const bubbleY = parseFloat(bubble.style.top) || 0;
-    const size = BUBBLE_SIZES[bubble.dataset.shape] || 60;
+    const size = BUBBLE_SIZES[bubble.dataset.shape] || 45;
     
     toast.style.left = (bubbleX + size / 2) + 'px';
     toast.style.top = (bubbleY - 10) + 'px';
@@ -310,12 +309,11 @@ const BUBBLE_CONFIG = [
       e.stopPropagation();
       
       if (bubble.dataset.popped === 'true') return;
-      bubble.dataset.popped = 'true'
-
-// ISE CHANGE KARO:
-if (typeof playSound === 'function' && config.sound) {
-  playSound(config.sound);
-}
+      bubble.dataset.popped = 'true';
+      
+      if (typeof playSound === 'function' && config.sound) {
+        playSound(config.sound);
+      }
       
       showToast(config.toast, config.toastClass, bubble);
       
@@ -327,7 +325,7 @@ if (typeof playSound === 'function' && config.sound) {
       
       setTimeout(() => {
         if (bubble.parentNode) bubble.remove();
-      }, 400);
+      }, 350);
       
       poppedCount++;
       updateHeartProgress();
@@ -347,7 +345,7 @@ if (typeof playSound === 'function' && config.sound) {
     };
   }
 
-  // ---------- CREATE BUBBLES WITH ENTRANCE ----------
+  // ---------- CREATE BUBBLES ----------
   function createBubble(config, index) {
     const bubble = document.createElement('div');
     bubble.className = 'bubble-system-bubble';
@@ -355,42 +353,45 @@ if (typeof playSound === 'function' && config.sound) {
     bubble.dataset.popped = 'false';
     bubble.dataset.shape = config.shape;
     
-    const size = BUBBLE_SIZES[config.shape] || 60;
+    const size = BUBBLE_SIZES[config.shape] || 45;
     bubble.style.width = size + 'px';
     bubble.style.height = size + 'px';
     
-    // Start from heart position (bottom-right)
-    const heartX = window.innerWidth - 80;
-    const heartY = window.innerHeight - 80;
+    // Start from heart position
+    const heartX = window.innerWidth - 70;
+    const heartY = window.innerHeight - 70;
     bubble.style.left = heartX + 'px';
     bubble.style.top = heartY + 'px';
     
     // Create liquid bubble container
-const container = document.createElement('div');
-container.className = 'bubble-container';
-
-const img = document.createElement('img');
-img.src = `bubble-system/assets/shapes/${config.shape}`;
-img.alt = 'Bubble';
-img.draggable = false;
-
-// Set glow color based on shape
-if (config.shape === 'shape-1.svg') img.style.color = '#000000'; // Black glow
-else if (config.shape === 'shape-2.svg') img.style.color = '#D2B48C'; // Light brown glow
-else if (config.shape === 'shape-3.svg') img.style.color = '#FF69B4'; // Pink glow
-else if (config.shape === 'shape-4.svg') img.style.color = '#8B0000'; // Dark red glow
-
-container.appendChild(img);
-bubble.appendChild(container);
+    const container = document.createElement('div');
+    container.className = 'bubble-container';
+    
+    const img = document.createElement('img');
+    img.src = `bubble-system/assets/shapes/${config.shape}`;
+    img.alt = 'Bubble';
+    img.draggable = false;
+    
+    // Set glow color based on shape
+    if (config.shape === 'shape-1.svg') img.style.color = '#000000';
+    else if (config.shape === 'shape-2.svg') img.style.color = '#D2B48C';
+    else if (config.shape === 'shape-3.svg') img.style.color = '#FF69B4';
+    else if (config.shape === 'shape-4.svg') img.style.color = '#8B0000';
     
     container.appendChild(img);
     bubble.appendChild(container);
+    
+    // ✅ ADD CLICK TEXT (Bubble ke upar chipka hua)
+    const clickText = document.createElement('span');
+    clickText.className = 'bubble-click-text';
+    clickText.textContent = '🫦Click Me🧚🏻‍♀️';
+    bubble.appendChild(clickText);
     
     bubble.addEventListener('click', handleBubblePop(bubble, config, index));
     
     document.body.appendChild(bubble);
     
-    // Entrance animation - fly from heart to random position
+    // Entrance animation
     setTimeout(() => {
       const padding = 50;
       const targetX = padding + Math.random() * (window.innerWidth - size - 2 * padding);
@@ -404,8 +405,8 @@ bubble.appendChild(container);
         bubble.classList.remove('bubble-entrance');
         bubble.style.left = targetX + 'px';
         bubble.style.top = targetY + 'px';
-      }, 1000);
-    }, index * 150); // Staggered entrance
+      }, 1200);
+    }, index * 120);
     
     return bubble;
   }
@@ -422,7 +423,6 @@ bubble.appendChild(container);
     loadProgress();
     createHeartProgress();
     
-    // Create bubbles
     BUBBLE_CONFIG.forEach((config, index) => {
       const bubble = createBubble(config, index);
       bubbles.push(bubble);
@@ -434,14 +434,13 @@ bubble.appendChild(container);
       showKissReward();
       bubbles.forEach(b => { if (b.parentNode) b.remove(); });
     } else {
-      // Start smooth movement after entrance
       setTimeout(() => {
         animationFrame = requestAnimationFrame(smoothMovement);
       }, 1500);
     }
     
     isInitialized = true;
-    console.log('Bubble: System initialized');
+    console.log('Bubble: System initialized (90% transparent)');
   }
 
   // ---------- RESET ----------
